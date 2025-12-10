@@ -1,0 +1,36 @@
+全部的运行结果，模型文件，均已保存至对应不录，环境有所差异，具体依赖也均在对应文件夹的README详细说明
+重要说明：各子目录的详细依赖与运行步骤请参考各自文件夹内的README!!!!!!!!!!!
+重要说明：各子目录的详细依赖与运行步骤请参考各自文件夹内的README!!!!!!!!!!!
+重要说明：各子目录的详细依赖与运行步骤请参考各自文件夹内的README!!!!!!!!!!!
+
+本文件仅提供宏观的环境依赖与安装建议，帮助快速搭建可运行的整体环境。
+
+轻量模型依赖（编号1、编号3、编号7、v2）
+- 主要包：pandas、numpy、scikit-learn、lightgbm、joblib
+- 安装示例：pip install pandas numpy scikit-learn lightgbm joblib
+
+v5一劳永逸模型依赖（编号2）
+- 主要包：pandas、numpy、scikit-learn、catboost、joblib、tqdm、networkx、node2vec
+- 安装示例：pip install pandas numpy scikit-learn catboost joblib tqdm networkx node2vec
+- 说明：首次运行会训练文本管线与图嵌入（较慢）；后续加载缓存可在数分钟内生成结果。若本机 CPU 线程数较少，建议将脚本中的 Node2Vec 参数 workers 调低。
+
+Kaggle环境模型依赖（编号4：dspos2、编号6：133）
+- 推荐在 Kaggle 默认环境运行，仅需安装：torch_geometric
+- 安装示例（Kaggle Notebook）：pip install torch_geometric
+- 说明：Kaggle 提供免费 GPU，约半小时可完成复现；为保证与我们结果一致，强烈建议在 Kaggle 上运行。若在本地运行，需自行安装 PyTorch 与 torch_geometric，并按本机 CUDA/CPU 适配版本。
+
+决赛 classic_tabular_autoML 依赖
+- 该目录（classic_tabular_autoML - 超级无敌）提供 requirements.txt 与 README，按其说明安装（包含 AutoGluon Tabular 等）。
+- 说明：该子项目计算量较大，建议在资源充足的环境，服务器运行。
+
+融合脚本依赖（根目录）
+- FINAL加权.py、Top10加权融合.py、整合rv5到最终投票.py：主要依赖 pandas
+- 安装示例：pip install pandas
+
+路径与运行约定（宏观）
+- 全部脚本默认使用相对路径；运行时将当前工作目录置为项目根目录“旧决赛时”。
+- 各子目录的输出 CSV 会被根目录融合脚本直接读取，请保持目录结构与文件名不变。
+
+补充建议
+- 若遇到包安装失败或版本不兼容，请优先参考各子目录 README 中的环境说明与版本建议。
+- 国内镜像可提升安装速度
