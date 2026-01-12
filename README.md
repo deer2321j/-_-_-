@@ -118,7 +118,7 @@ graph TD
     %% =======================
     subgraph L2 ["⚡ Layer 2: 抗退化仲裁 (Anti-Degradation)"]
         Stable_RV5 & M_Other -->|文件内标准化| Norm[标准化处理]:::base
-        Norm -->|ResNet式跳连 (小权重接入)| Vote[("加权投票 (Weighted Voting)")]:::layer2
+        Norm -->|"ResNet式跳连 (小权重接入)"| Vote[("加权投票 (Weighted Voting)")]:::layer2
         Vote -->|得分并列| Arbiter{{"⚖️ 顺序仲裁器"}}:::final
     end
 
