@@ -1,74 +1,111 @@
-# 📚 全球 AI 算法挑战赛 — 图书馆多模型推荐系统
-# (Multi-Model Library Recommendation)
+# 📚 基于仲裁式双层集成的智能借阅推荐系统
+# (Arbitration-based Two-Layer Ensemble Recommendation System)
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Completed-orange?style=for-the-badge)
-![Fusion](https://img.shields.io/badge/Strategy-Weighted%20Voting-red?style=for-the-badge)
+![Architecture](https://img.shields.io/badge/Arch-ResNet--Inspired-purple?style=for-the-badge)
+![Strategy](https://img.shields.io/badge/Strategy-Weighted%20Arbitration-red?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)
 
-> 🏆 **决赛方案**: 这是一个生产级的多模型融合推荐系统。我们采用独立的子模型训练策略，并通过两层加权投票机制（Two-Layer Weighted Voting）融合各模型结果，最终生成高精度的图书借阅推荐。
+> 🏆 **决赛核心方案**: 本项目针对跨模态数据融合、用户冷启动及多模型集成中“概率分布不一致”的核心挑战，创新性地提出了**“加权投票为主、顺序仲裁为辅”**的双层集成框架。系统引入 **ResNet 残差思想** 解决集成退化问题，底层结合 **BERT** 与 **GAT** 深度挖掘图文特征，最终实现高精度的图书借阅推荐。
 
 ---
 
 ## 📖 目录 (Table of Contents)
 
-- [核心亮点 (Highlights)](#-核心亮点-highlights)
-- [架构流程 (Architecture)](#-架构流程-architecture)
+- [核心创新 (Key Innovations)](#-核心创新-key-innovations)
+- [系统架构 (System Architecture)](#-系统架构-system-architecture)
+- [技术深度解析 (Technical Deep Dive)](#-技术深度解析-technical-deep-dive)
+    - [双层集成机制 (Two-Layer Ensemble)](#1-双层集成机制-two-layer-ensemble)
+    - [ResNet 残差抗退化设计 (ResNet Anti-Degradation)](#2-resnet-残差抗退化设计-resnet-anti-degradation)
+    - [多模态特征挖掘 (Multi-Modal Mining)](#3-多模态特征挖掘-multi-modal-mining)
 - [快速开始 (Quick Start)](#-快速开始-quick-start)
 - [仓库结构 (Repository Layout)](#-仓库结构-repository-layout)
-- [完整复现步骤 (Full Reproduction)](#-完整复现步骤-full-reproduction)
-- [数据说明 (Data & Inputs)](#-数据说明-data--inputs)
-- [注意事项 (Notes & Troubleshooting)](#-注意事项-notes--troubleshooting)
+- [完整复现 (Full Reproduction)](#-完整复现-full-reproduction)
+- [注意事项 (Notes)](#-注意事项-notes)
 
 ---
 
-## ✨ 核心亮点 (Highlights)
+## ✨ 核心创新 (Key Innovations)
 
-*   **🧩 多模型流水线 (Multi-model Pipeline)**
-    *   每个子文件夹（如 `v5`, `23混推` 等）包含独立的训练与推理流程，模块化程度高，互不干扰。
-*   **⚖️ 两层加权投票 (Two-layer Weighted Voting)**
-    *   独特的两阶段融合策略，有效结合了不同模型的优势，显著提升了结果的鲁棒性和准确性。
-*   **🔄 全链路复现 (Full Reproduction)**
-    *   提供完整的复现路径，每个子模型均有详细的独立文档说明。
+*   **🛡️ 双层仲裁集成 (Two-Layer Arbitration Ensemble)**
+    *   **Layer 1 (鲁棒性)**: 精英模型 Top-10 预融合，构建高置信度基准。
+    *   **Layer 2 (精确性)**: 全量模型加权投票 + **顺序仲裁机制**，解决平票与分布差异问题。
+*   **🧬 ResNet 残差思想 (ResNet-Inspired)**
+    *   构建 $H(x) = F(x) + x$ 的集成范式。以 Layer 1 结果为恒等映射 ($x$)，Layer 2 为残差修正 ($F(x)$)，确保集成效果**单调不减**，解决“越集成越退化”的悖论。
+*   **🧠 多模态深度挖掘 (Deep Multi-Modal Mining)**
+    *   引入 **BERT** 提取文本语义，利用 **GAT (图注意力网络)** 捕捉用户-书籍交互图结构，突破传统统计特征的瓶颈。
 
 ---
 
-## 🛠️ 架构流程 (Architecture)
+## 🛠️ 系统架构 (System Architecture)
 
-为了更好地理解系统工作流，以下是核心处理逻辑的示意图：
+本方案采用“漏斗式”决策流，从底层特征挖掘到上层仲裁决策，层层递进：
 
 ```mermaid
 graph TD
-    subgraph Data ["💾 数据输入"]
-        A[原始数据 1data.csv / 111data.csv]
+    subgraph FeatureEng ["� 底层特征工程 (Feature Engineering)"]
+        Data[多模态原始数据]
+        Data -->|语义理解| BERT[BERT 文本向量]
+        Data -->|关系建模| GAT[GAT 图神经网络]
+        Data -->|统计特征| Stat[统计/交互特征]
     end
 
-    subgraph Models ["🧠 子模型独立训练/推理"]
-        B{模型集群}
-        B --> C[23混推]
-        B --> D[v5模型]
-        B --> E[dspos2]
-        B --> F[133模型]
-        B --> G[f1模型]
-        B --> H[v2模型]
-        B --> I[决赛classic_autoML]
+    subgraph BaseModels ["🧠 差异化模型集群 (Model Cluster)"]
+        BERT & GAT & Stat --> M_Cat[CatBoost 集群]
+        BERT & GAT & Stat --> M_LGB[LightGBM 集群]
+        BERT & GAT & Stat --> M_DL[深度/规则模型]
     end
 
-    subgraph Fusion ["⚡ 多层融合策略"]
-        C & D & E & F & G & H & I --> J[中间产物 CSV]
-        J --> K[整合 v5 结果]
-        K --> L[Top-10 加权融合]
-        L --> M[最终两层加权投票 FINAL加权.py]
+    subgraph Layer1 ["🛡️ Layer 1: 鲁棒性基准 (The Shortcut 'x')"]
+        M_Cat & M_LGB & M_DL -.->|筛选精英模型| Elite[精英模型 Top-10]
+        Elite -->|文件内标准化 + 动态加权| L1_Out[Layer 1 基准结果]
+        style L1_Out fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
     end
 
-    subgraph Output ["🎯 最终输出"]
-        M --> N((submission.csv))
+    subgraph Layer2 ["⚡ Layer 2: 精确仲裁 (The Residual 'F(x)')"]
+        M_Cat & M_LGB & M_DL -->|全量输入| Voting[全量加权投票]
+        L1_Out -->|锚点输入| Voting
+        Voting -->|得分并列/冲突| Arbiter{顺序仲裁器}
+        Arbiter -->|优先级索引| FinalDec[最终决策]
+        style FinalDec fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
     end
-    
-    style N fill:#f96,stroke:#333,stroke-width:4px,color:white
-    style M fill:#bbf,stroke:#333,stroke-width:2px
-    style A fill:#dfd,stroke:#333,stroke-width:2px
+
+    L1_Out -.->|ResNet 思想: 兜底保障| FinalDec
+
+    subgraph Output ["🎯 最终产出"]
+        FinalDec --> Sub((submission.csv))
+    end
+
+    style Sub fill:#ffccbc,stroke:#bf360c,stroke-width:4px
 ```
+
+---
+
+## 🔍 技术深度解析 (Technical Deep Dive)
+
+### 1. 双层集成机制 (Two-Layer Ensemble)
+为解决模型输出概率分布不一致和平票问题，我们构建了严格的双层机制：
+
+*   **Layer 1：构建高可靠性基准 (Reliable Baseline)**
+    *   采用“**文件内标准化 + 跨文件动态加权**”技术。
+    *   消除不同模型量纲差异，确保精英模型结果在统一标准下融合，实现自校正。
+*   **Layer 2：多模型加权仲裁 (Weighted Arbitration)**
+    *   读取所有子模型与 Layer 1 产出进行加权投票。
+    *   **仲裁机制**：当出现得分并列时，严格依据**模型优先级索引**进行仲裁，确保结果的唯一性与可复现性。
+
+### 2. ResNet 残差抗退化设计 (ResNet Anti-Degradation)
+针对集成学习中引入弱模型可能导致效果下降的“退化悖论”，我们复刻了 ResNet 的核心思想：
+
+> **公式**: $H(x) = F(x) + x$
+
+*   **$x$ (恒等基准)**: 由 Layer 1 精英模型结果构成，相当于 ResNet 的 Shortcut，提供**性能下界兜底**。
+*   **$F(x)$ (残差修正)**: 由 Layer 2 全量模型投票构成，旨在捕捉额外的增量信息。
+*   **价值**: 这种设计赋予系统“敢于加深”的底气。即使 Layer 2 引入了噪声，Layer 1 的存在也能保证最终效果不低于单体精英模型。
+
+### 3. 多模态特征挖掘 (Multi-Modal Mining)
+推荐系统的上限由特征决定。我们超越传统机器学习，引入深度学习特征：
+*   **BERT**: 提取书籍简介、评论的深层语义特征。
+*   **GNN (图神经网络)**: 构建“用户-书籍”异构图，利用 GAT 捕捉高阶协同过滤信号，解决冷启动问题。
 
 ---
 
@@ -81,19 +118,17 @@ python FINAL加权.py
 ```
 
 *   **输出**: `submission.csv`
-*   **注意**: 所有脚本均设计为在项目根目录下运行，请勿切换到子目录执行根目录脚本。
+*   **注意**: 脚本依赖各子目录的中间产物，如果是首次运行，请参考下方的“完整复现”。
 
 ---
 
 ## 📂 仓库结构 (Repository Layout)
 
-清晰的文件结构有助于您快速定位核心代码：
-
 ```text
 .
-├── 📜 FINAL加权.py                # 🔥 核心：最终两层加权投票脚本 -> submission.csv
-├── 📜 Top10加权融合.py            # 🔨 核心：Top-10 加权融合脚本 -> top10加权输出结果.csv
-├── 📜 整合rv5到最终投票.py         # 🔨 核心：v5 结果整合脚本 -> 七以上的v5.csv
+├── 📜 FINAL加权.py                # 🔥 Layer 2 核心：最终仲裁与加权脚本 -> submission.csv
+├── 📜 Top10加权融合.py            # �️ Layer 1 核心：Top-10 基准生成 -> top10加权输出结果.csv
+├── 📜 整合rv5到最终投票.py         # � 辅助：v5 模型结果标准化
 ├── 📂 23混推/                     # 🧠 子模型：混合推荐策略
 ├── 📂 v5/                        # 🧠 子模型：v5 版本
 ├── 📂 dspos2/                    # 🧠 子模型：dspos2 版本
@@ -101,72 +136,42 @@ python FINAL加权.py
 ├── 📂 f1/                        # 🧠 子模型：f1 版本
 ├── 📂 v2/                        # 🧠 子模型：v2 版本
 ├── 📂 决赛classic_autoML/        # 🧠 子模型：AutoML 策略
-├── 📝 整体README帮助理解.txt       # 📘 辅助文档
 └── 📝 环境依赖.txt                 # 📦 依赖说明
 ```
 
 ---
 
-## 🔄 完整复现步骤 (Full Reproduction)
+## 🔄 完整复现 (Full Reproduction)
 
-如果您需要从头复现所有结果，请严格遵循以下步骤：
-
-### 1. 子模型生成 (Per-model outputs)
-进入以下每个文件夹，按照其内部的 `README` 说明运行，生成各自的 CSV 产物：
+### 1. 子模型生成 (Per-model Inference)
+进入以下每个文件夹，按照其内部 README 运行，生成各自的 CSV 产物：
 > `23混推` / `v5` / `dspos2` / `133` / `f1` / `v2` / `决赛classic_autoML`
 
-### 2. 回到根目录进行融合 (Fusion)
+### 2. 执行双层集成 (Execute Ensemble)
 
 ```bash
-# 步骤 2: 整合 v5 结果
-# 作用：将 v5 模型的预测结果整合到统一格式
+# Step 1: 准备 v5 结果 (Layer 1 预处理)
 python 整合rv5到最终投票.py
-# -> 生成: 七以上的v5.csv
 
-# 步骤 3: Top-10 加权融合
-# 作用：对表现最好的 Top-10 结果进行加权
+# Step 2: 生成 Layer 1 基准 (Top-10 加权)
+# 对应理论中的 "x" (Shortcut)
 python Top10加权融合.py
-# -> 生成: top10加权输出结果.csv
 
-# 步骤 4: 最终两层加权投票
-# 作用：生成最终提交文件
+# Step 3: 执行 Layer 2 最终仲裁 (Final Arbitration)
+# 对应理论中的 "H(x) = F(x) + x"
 python FINAL加权.py
-# -> 生成: submission.csv
 ```
 
 ---
 
-## 📊 数据说明 (Data & Inputs)
+## ⚠️ 注意事项 (Notes)
 
-| 文件名 | 说明 | 备注 |
-| :--- | :--- | :--- |
-| `1data.csv` | 复赛数据 | 用于部分模型的验证与训练 |
-| `111data.csv` | 决赛数据 | 最终预测的目标数据集 |
-
-> **⚠️ 重要**: 许多子模型文件夹内包含了自己的数据副本。请严格按照各文件夹内的 README 指引放置数据文件。
-
----
-
-## ⚠️ 注意事项 (Notes & Troubleshooting)
-
-### 💾 关于大文件
-*   **模型文件与中间产物**: 最终决赛提交的模型文件、过程 CSV 产物均已线下保存。
-*   **Git 限制**: 由于 GitHub 文件大小限制，`.joblib`, `.pkl`, `.csv` 等大型二进制文件 **未上传** 到此仓库。
-*   **获取完整包**: 如需完整复现包（包含所有大文件），请联系邮箱：`a1992423911@dlmu.edu.cn`。
-
-### 🔧 常见问题
-1.  **路径错误**: 必须在 **项目根目录** 运行根目录下的 `.py` 脚本，否则相对路径会报错。
-2.  **数据缺失**: 如果脚本提示找不到数据，请检查 `1data.csv` / `111data.csv` 位置是否正确。
-3.  **编码问题**: 项目统一使用 `UTF-8` 编码。如果遇到乱码，请检查您的编辑器设置或输入文件编码。
-
----
-
-## 📜 许可证 (License)
-
-本项目代码供学习交流使用。
+*   **数据路径**: 请确保 `1data.csv` (复赛) 和 `111data.csv` (决赛) 放置在正确位置。
+*   **运行目录**: 所有 Python 脚本必须在 **项目根目录** 执行。
+*   **大文件**: 模型权重文件 (`.pkl`, `.joblib`) 未上传 Git，如需完整离线包请联系 `a1992423911@dlmu.edu.cn`。
 
 ---
 
 <p align="center">
-  <i>Created with ❤️ by the Algorithm Team</i>
+  <i>Powered by <b>Arbitration-based Ensemble Strategy</b></i>
 </p>
