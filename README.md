@@ -78,43 +78,54 @@ Layer 2 作为最终决策层，核心目标是确保在引入新模型时，系
 ```mermaid
 graph TD
     %% =======================
-    %% 🎨 极简配色方案 (Minimalist Style)
+    %% 🎨 高对比度美化配色 (High Contrast & Modern)
     %% =======================
-    classDef base fill:#fff,stroke:#333,stroke-width:1px;
-    classDef core fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef final fill:#212121,stroke:#000,stroke-width:2px,color:#fff;
-    classDef l1 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5;
+    %% 强制文字黑色(#000)以保证清晰度
+    classDef base fill:#ffffff,stroke:#333333,stroke-width:1px,color:#000000;
+    classDef input fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
+    classDef model fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
+    classDef l1 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5,color:#e65100;
+    classDef l2 fill:#e0f2f1,stroke:#00695c,stroke-width:3px,color:#004d40;
+    classDef final fill:#263238,stroke:#000000,stroke-width:2px,color:#ffffff;
     
     %% =======================
-    %% 📐 核心流程 (Core Flow)
+    %% 📐 核心流程
     %% =======================
     
-    %% 1. 数据输入
-    Input[("📚 多模态输入")]:::base
+    %% 1. 输入
+    Input([("📚 多模态输入数据")]) :::input
     
-    %% 2. 模型层 (并行处理)
-    subgraph Models ["🧠 模型集群"]
+    %% 2. 模型层
+    subgraph Models ["🧠 模型变体集群"]
         direction LR
-        RV5_A["rv5 (Dim=64)"]:::base
-        RV5_B["rv5 (Dim=128)"]:::base
-        Other["其他异构模型"]:::base
+        style Models fill:#fafafa,stroke:#eeeeee,color:#666
+        RV5_A["rv5 (Dim=64)"]:::model
+        RV5_B["rv5 (Dim=128)"]:::model
+        Other["其他异构模型"]:::model
     end
     
     Input --> Models
     
-    %% 3. Layer 1: 自校正 (核心亮点)
+    %% 3. Layer 1 (自校正)
     L1_Core{{"🛡️ Layer 1: 自校正聚合"}}:::l1
-    RV5_A & RV5_B -->|"提取公共(Intersection)"| L1_Core
     
-    %% 4. Layer 2: 最终仲裁
-    L2_Vote[("⚡ Layer 2: 最终仲裁")]:::core
+    %% 连线逻辑
+    RV5_A & RV5_B -->|"提取公共 (Intersection)"| L1_Core
     
-    L1_Core -->|"稳定信号 (高权重)"| L2_Vote
-    Other -->|"补充信号 (小权重)"| L2_Vote
+    %% 4. Layer 2 (仲裁)
+    L2_Vote[("⚡ Layer 2: 最终仲裁")]:::l2
+    
+    L1_Core ==>|"稳定信号 (高权重)"| L2_Vote
+    Other -.->|"补充信号 (小权重)"| L2_Vote
     
     %% 5. 输出
     Result((submission.csv)):::final
     L2_Vote --> Result
+
+    %% =======================
+    %% 🔗 连线样式
+    %% =======================
+    linkStyle default stroke:#666,stroke-width:2px;
 ```
 
 ---
