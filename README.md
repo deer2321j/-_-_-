@@ -99,9 +99,9 @@ graph TD
     %% 2. 模型变体生成
     %% =======================
     subgraph Variants ["🧠 模型变体生成 (Model Variants)"]
-        M_RV5_A[rv5 (Dim=64)]:::base
-        M_RV5_B[rv5 (Dim=128)]:::base
-        M_Other[其他异构模型]:::base
+        M_RV5_A["rv5 (Dim=64)"]:::base
+        M_RV5_B["rv5 (Dim=128)"]:::base
+        M_Other["其他异构模型"]:::base
     end
     Feat --> M_RV5_A & M_RV5_B & M_Other
 
