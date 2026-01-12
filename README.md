@@ -78,55 +78,43 @@ Layer 2 作为最终决策层，核心目标是确保在引入新模型时，系
 ```mermaid
 graph TD
     %% =======================
-    %% 🎨 样式定义
+    %% 🎨 极简配色方案 (Minimalist Style)
     %% =======================
-    classDef base fill:#f8f9fa,stroke:#adb5bd,stroke-width:1px,color:#212529;
-    classDef feature fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
-    classDef layer1 fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#e65100;
-    classDef layer2 fill:#fce4ec,stroke:#d81b60,stroke-width:2px,color:#880e4f;
-    classDef final fill:#263238,stroke:#263238,stroke-width:3px,color:#fff;
-
+    classDef base fill:#fff,stroke:#333,stroke-width:1px;
+    classDef core fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef final fill:#212121,stroke:#000,stroke-width:2px,color:#fff;
+    classDef l1 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5;
+    
     %% =======================
-    %% 1. 输入与特征
+    %% 📐 核心流程 (Core Flow)
     %% =======================
-    subgraph Input ["🔍 输入与多模态特征"]
-        Data[("📚 原始数据")]:::base
-        Feat[("⚡ BERT + GAT + 统计特征")]:::feature
-        Data --> Feat
+    
+    %% 1. 数据输入
+    Input[("📚 多模态输入")]:::base
+    
+    %% 2. 模型层 (并行处理)
+    subgraph Models ["🧠 模型集群"]
+        direction LR
+        RV5_A["rv5 (Dim=64)"]:::base
+        RV5_B["rv5 (Dim=128)"]:::base
+        Other["其他异构模型"]:::base
     end
-
-    %% =======================
-    %% 2. 模型变体生成
-    %% =======================
-    subgraph Variants ["🧠 模型变体生成 (Model Variants)"]
-        M_RV5_A["rv5 (Dim=64)"]:::base
-        M_RV5_B["rv5 (Dim=128)"]:::base
-        M_Other["其他异构模型"]:::base
-    end
-    Feat --> M_RV5_A & M_RV5_B & M_Other
-
-    %% =======================
-    %% 3. Layer 1: 自校正
-    %% =======================
-    subgraph L1 ["🛡️ Layer 1: 自校正 (Self-Correction)"]
-        M_RV5_A & M_RV5_B -->|提取公共部分| SelfCorr[("自校正聚合 (Intersection)")]:::layer1
-        SelfCorr -->|高权重稳定输出| Stable_RV5[稳定 rv5 信号]:::layer1
-    end
-
-    %% =======================
+    
+    Input --> Models
+    
+    %% 3. Layer 1: 自校正 (核心亮点)
+    L1_Core{{"🛡️ Layer 1: 自校正聚合"}}:::l1
+    RV5_A & RV5_B -->|"提取公共(Intersection)"| L1_Core
+    
     %% 4. Layer 2: 最终仲裁
-    %% =======================
-    subgraph L2 ["⚡ Layer 2: 抗退化仲裁 (Anti-Degradation)"]
-        Stable_RV5 & M_Other -->|文件内标准化| Norm[标准化处理]:::base
-        Norm -->|"ResNet式跳连 (小权重接入)"| Vote[("加权投票 (Weighted Voting)")]:::layer2
-        Vote -->|得分并列| Arbiter{{"⚖️ 顺序仲裁器"}}:::final
-    end
-
-    %% =======================
+    L2_Vote[("⚡ Layer 2: 最终仲裁")]:::core
+    
+    L1_Core -->|"稳定信号 (高权重)"| L2_Vote
+    Other -->|"补充信号 (小权重)"| L2_Vote
+    
     %% 5. 输出
-    %% =======================
     Result((submission.csv)):::final
-    Arbiter --> Result
+    L2_Vote --> Result
 ```
 
 ---
