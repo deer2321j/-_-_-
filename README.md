@@ -93,7 +93,7 @@ graph TD
     %% =======================
     
     %% 1. 输入
-    Input([("📚 多模态输入数据")]) :::input
+    Input("📚 多模态输入数据"):::input
     
     %% 2. 模型层
     subgraph Models ["🧠 模型变体集群"]
@@ -113,7 +113,7 @@ graph TD
     RV5_A & RV5_B -->|"提取公共 (Intersection)"| L1_Core
     
     %% 4. Layer 2 (仲裁)
-    L2_Vote[("⚡ Layer 2: 最终仲裁")]:::l2
+    L2_Vote("⚡ Layer 2: 最终仲裁"):::l2
     
     L1_Core ==>|"稳定信号 (高权重)"| L2_Vote
     Other -.->|"补充信号 (小权重)"| L2_Vote
